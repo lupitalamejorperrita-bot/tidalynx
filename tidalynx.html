@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Tidalynx AR</title>
+    <script src="https://aframe.io/releases/1.4.1/aframe.min.js"></script>
+    <script src="https://cdn.rawgit.com/jeromeetienne/AR.js/2.2.1/aframe/build/aframe-ar.js"></script>
+    <style>
+      #ui {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.7);
+        padding: 10px 20px;
+        border-radius: 10px;
+        display: none;
+        color: white;
+        font-family: sans-serif;
+      }
+      button {
+        margin: 5px;
+        padding: 8px 15px;
+        border: none;
+        border-radius: 8px;
+        background: #444;
+        color: white;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #666;
+      }
+    </style>
+  </head>
+  <body style="margin:0; overflow:hidden;">
+    <a-scene embedded arjs>
+      <!-- Marcador Hiro -->
+      <a-marker preset="hiro" id="hiroMarker">
+        <a-entity
+          id="tidalynxModel"
+          gltf-model="tidalynx.glb"
+          scale="0.5 0.5 0.5"
+          position="0 0 0"
+          visible="false"
+        ></a-entity>
+      </a-marker>
+
+      <a-entity camera></a-entity>
+    </a-scene>
+
+    <!-- Audio -->
+    <audio id="audioStory" src="tidalynx.mp3" preload="auto"></audio>
+
+    <!-- UI de botones -->
+    <div id="ui">
+      <p>Has encontrado a Tidalynx, el guardián de las mareas 🌊<br>¿Quieres conocer su historia?</p>
+      <button onclick="decidir(true)">Sí</button>
+      <button onclick="decidir(false)">No</button>
+    </div>
+
+    <script>
+      const marker = document.getElementById("hiroMarker");
+      const model = document.getElementById("tidalynxModel");
+      const audio = document.getElementById("audioStory");
+      const ui = document.getElementById("ui");
+
+      // Mostrar botones cuando aparece el marcador
+      marker.addEventListener("markerFound", () => {
+        model.setAttribute("visible", "true");
+        ui.style.display = "block";
+      });
+
+      marker.addEventListener("markerLost", () => {
+        model.setAttribute("visible", "false");
+        ui.style.display = "none";
+        audio.pause();
+      });
+
+      // Decisión del usuario
+      function decidir(si) {
+        ui.style.display = "none";
+        if (si) {
+          audio.play();
+        } else {
+          activarNiebla();
+        }
+      }
+
+      // Niebla cuando dice NO
+      function activarNiebla() {
+        const scene = document.querySelector("a-scene");
+        scene.setAttribute(
+          "fog",
+          "type: exponential; color: #222; density: 0.1"
+        );
+      }
+    </script>
+  </body>
+</html>
